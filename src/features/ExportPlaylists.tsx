@@ -3,6 +3,7 @@ import { PlaylistService } from '../services/playlist-service'
 import SpotifyApiService from '../services/spotify-api-service'
 import useSpotifyAuthStore from '../stores/authStore'
 import usePlaylistStore from '../stores/playlistStore'
+import { Spotify } from '../util/constants'
 import { PlaylistHandle } from './components/PlaylistHandle'
 
 export const ExportPlaylists: FC = () => {
@@ -14,7 +15,8 @@ export const ExportPlaylists: FC = () => {
 
   useEffect(() => {
     const load = async () => {
-      const playlists = await SpotifyApiService.getAllUserPlaylists(authStore.userId!, authStore.authDetails!.accessToken)
+      const authDetails = await SpotifyApiService.getUpdatedAuthDetails(authStore.authDetails!, Spotify.clientId, authStore.updateAuth)
+      const playlists = await SpotifyApiService.getAllUserPlaylists(authStore.userId!, authDetails.accessToken)
       const simplePlaylists = playlists.map((playlist) => ({ name: playlist.name, id: playlist.id, tracks: playlist.tracks }))
       setExistingPlaylists(simplePlaylists)
     }
@@ -23,7 +25,7 @@ export const ExportPlaylists: FC = () => {
   }, [])
 
   const saveAll = async () => {
-    const authDetails = authStore.authDetails!
+    const authDetails = await SpotifyApiService.getUpdatedAuthDetails(authStore.authDetails!, Spotify.clientId, authStore.updateAuth)
     const userId = authStore.userId!
     for (const [playlistName, tracks] of Object.entries(playlists)) {
       const addTracksInfo = tracks.map((track) => ({ uri: `spotify:track:${track.id}` }))
@@ -55,8 +57,9 @@ export const ExportPlaylists: FC = () => {
         ))}
       </ul>
       <button
-        onClick={() => {
-          PlaylistService.getPlaylistTracks('6oC24OwBlCdSfQ6NAsC6hk', authStore.authDetails!.accessToken)
+        onClick={async () => {
+          const authDetails = await SpotifyApiService.getUpdatedAuthDetails(authStore.authDetails!, Spotify.clientId, authStore.updateAuth)
+          PlaylistService.getPlaylistTracks('6oC24OwBlCdSfQ6NAsC6hk', authDetails.accessToken)
         }}
       >
         Get Playlist Tracks 🐸

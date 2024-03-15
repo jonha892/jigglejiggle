@@ -1,17 +1,16 @@
-import { z } from 'zod';
-import { AuthDetails } from '../types/SpotifyAuth';
+import { z } from 'zod'
+import { AuthDetails } from '../types/SpotifyAuth'
 
-
-type Cluster = string[];
-export type ClusterMapping = { [key: string]: Cluster };
+type Cluster = string[]
+export type ClusterMapping = { [key: string]: Cluster }
 
 const ClusterResponseSchema = z.object({
   clusters: z.record(z.array(z.string())),
   total_tokens: z.number(),
-});
+})
 
 export default class JiggleApiService {
-  private static readonly baseUrl = 'http://localhost:8000';
+  private static readonly baseUrl = 'http://localhost:8000'
   private static readonly defaultHeaders = {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',
@@ -19,10 +18,7 @@ export default class JiggleApiService {
 
   private constructor() {}
 
-  public static async initAuth(
-    code: string,
-    redirectUri: string,
-): Promise<AuthDetails> {
+  public static async initAuth(code: string, redirectUri: string): Promise<AuthDetails> {
     /*
     const url = 'https://accounts.spotify.com/api/token'
     const headers = {
@@ -44,24 +40,22 @@ export default class JiggleApiService {
       code: code,
     }
     const response = await fetch(url, {
-        method: 'POST',
-        headers: this.defaultHeaders,
-        body: JSON.stringify(body),
-        mode: 'cors',
+      method: 'POST',
+      headers: this.defaultHeaders,
+      body: JSON.stringify(body),
+      mode: 'cors',
     })
     const json = await response.json()
     console.log('get token response', json)
 
     return {
-        accessToken: json.access_token,
-        refreshToken: json.refresh_token,
-        expiresTimestampInSeconds: json.expires_at,
+      accessToken: json.access_token,
+      refreshToken: json.refresh_token,
+      expiresTimestampInSeconds: json.expires_at,
     }
-}
+  }
 
-public static async refreshAuthToken(
-    refreshToken: string
-): Promise<AuthDetails> {
+  public static async refreshAuthToken(refreshToken: string): Promise<AuthDetails> {
     /*
     const url = 'https://accounts.spotify.com/api/token'
     const headers = {
@@ -79,34 +73,34 @@ public static async refreshAuthToken(
     const url = `${this.baseUrl}/api/token/${refreshToken}`
     const headers = this.defaultHeaders
     const response = await fetch(url, {
-        method: 'POST',
-        headers,
-        mode: 'cors',
+      method: 'POST',
+      headers,
+      mode: 'cors',
     })
 
     const json = await response.json()
     console.log('refresh token response', json)
 
     return {
-        accessToken: json.access_token,
-        refreshToken: json.refresh_token,
-        expiresTimestampInSeconds: json.expires_at,
+      accessToken: json.access_token,
+      refreshToken: json.refresh_token,
+      expiresTimestampInSeconds: json.expires_at,
     }
-}
+  }
 
-  public static async getClusters(genres: string[]): Promise<ClusterMapping> {
-    const url = `${JiggleApiService.baseUrl}/api/clusters`;
-    
+  public static async getClusters(genres: string[], nClusters: number): Promise<ClusterMapping> {
+    const url = `${JiggleApiService.baseUrl}/api/clusters`
+
     const response = await fetch(url, {
       method: 'POST',
       headers: this.defaultHeaders,
       mode: 'cors',
-      body: JSON.stringify({ genres }),
-    });
+      body: JSON.stringify({ genres: genres, n_clusters: nClusters }),
+    })
 
-    const json = await response.json();
-    const result = ClusterResponseSchema.parse(json);
+    const json = await response.json()
+    const result = ClusterResponseSchema.parse(json)
 
-    return result.clusters;
+    return result.clusters
   }
 }

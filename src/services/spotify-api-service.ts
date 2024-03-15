@@ -1,4 +1,3 @@
-import { Buffer } from 'buffer'
 import { Schema } from 'zod'
 import { AuthDetails } from '../types/SpotifyAuth'
 import { GetCurrentUserProfileResponse, GetCurrentUserProfileResponseSchema } from '../types/schemas/GetCurrentUserProfileResponse'
@@ -47,15 +46,31 @@ export default class SpotifyApiService {
     }
   }
 
-  public static async refreshAuthToken(refreshToken: string, clientId: string, clientSecret: string): Promise<AuthDetails> {
+  public static async getUpdatedAuthDetails(authDetails: AuthDetails, clientId: string, updateCallback: (n: AuthDetails) => void): Promise<AuthDetails> {
+    if (authDetails.accessToken === '') {
+      throw Error('No access token')
+    }
+    console.log('authDetails', authDetails)
+
+    const now = Math.floor(Date.now() / 1000)
+    if (now > authDetails.expiresTimestampInSeconds - 60) {
+      const newDetails = await this.refreshAuthToken(authDetails.refreshToken, clientId)
+      updateCallback(newDetails)
+      return newDetails
+    }
+
+    return authDetails
+  }
+
+  private static async refreshAuthToken(refreshToken: string, clientId: string): Promise<AuthDetails> {
     const url = 'https://accounts.spotify.com/api/token'
     const headers = {
       'Content-Type': 'application/x-www-form-urlencoded',
-      Authorization: `Basic ${Buffer.from(clientId + ':' + clientSecret).toString('base64')}`,
     }
     const body = new URLSearchParams({
       grant_type: 'refresh_token',
       refresh_token: refreshToken,
+      client_id: clientId,
     })
 
     const nowTimestamp = Math.floor(Date.now() / 1000)

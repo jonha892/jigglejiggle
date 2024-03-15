@@ -1,3 +1,5 @@
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import { Accordion, AccordionDetails, AccordionSummary, Button, Grid, LinearProgress, List, ListItem, ListItemText, Slider, Typography } from '@mui/material'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import JiggleApiService, { ClusterMapping } from '../services/jiggle-api-service'
@@ -5,24 +7,9 @@ import SpotifyApiService from '../services/spotify-api-service'
 import useSpotifyAuthStore from '../stores/authStore'
 import { useMusicStore } from '../stores/musicStore'
 import usePlaylistStore, { PlaylistTrackInfo, Playlists } from '../stores/playlistStore'
-import { AuthDetails } from '../types/SpotifyAuth'
 import { Artist } from '../types/schemas/Track'
 import { SavedTrackObject } from '../types/schemas/UserSavedTracksResponse'
 import { Spotify } from '../util/constants'
-
-async function getAccessToken(authDetails: AuthDetails): Promise<AuthDetails> {
-  if (authDetails.accessToken === '') {
-    throw Error('No access token')
-  }
-  console.log('authDetails', authDetails)
-
-  const now = Math.floor(Date.now() / 1000)
-  if (now > authDetails.expiresTimestampInSeconds - 60) {
-    const newDetails = await SpotifyApiService.refreshAuthToken(authDetails.refreshToken, Spotify.clientId, Spotify.clientSecret)
-    return newDetails
-  }
-  return authDetails
-}
 
 function buildPlaylists(
   tracks: SavedTrackObject[],
@@ -91,12 +78,13 @@ export const Home: React.FC = () => {
   const navigate = useNavigate()
 
   const [loading, setLoading] = useState(false)
+  const [n_clusters, setNClusters] = useState(5)
   const [genres, setGenres] = useState<string[]>([])
 
   const loadFavoriteSongs = async () => {
     const authDetails = authStore.authDetails
 
-    const newDetails = await getAccessToken(authDetails!)
+    const newDetails = await SpotifyApiService.getUpdatedAuthDetails(authDetails!, Spotify.clientId, authStore.updateAuth)
     authStore.updateAuth(newDetails)
     const loadedSavedTracks = await SpotifyApiService.getAllUserSavedTracks(newDetails.accessToken)
     musicStore.updateTracks(loadedSavedTracks)
@@ -108,7 +96,7 @@ export const Home: React.FC = () => {
   const loadArtists = async (artistIds: string[]) => {
     const authDetails = authStore.authDetails
 
-    const newDetails = await getAccessToken(authDetails!)
+    const newDetails = await SpotifyApiService.getUpdatedAuthDetails(authDetails!, Spotify.clientId, authStore.updateAuth)
     authStore.updateAuth(newDetails)
     const loadedArtists = await SpotifyApiService.getArtists(artistIds, newDetails.accessToken)
     musicStore.updateArtists(loadedArtists)
@@ -145,7 +133,7 @@ export const Home: React.FC = () => {
     setLoading(true)
     console.log('loading clusters for', genres.length, 'genres')
     try {
-      const r = await JiggleApiService.getClusters(genres)
+      const r = await JiggleApiService.getClusters(genres, n_clusters)
       console.log('clusters', r)
 
       console.log('building playlists')
@@ -164,24 +152,76 @@ export const Home: React.FC = () => {
   return (
     <div>
       <h1>Home</h1>
-      <p>Spotify-connected: {authStore.isLoggedIn() ? 'connected' : 'not connected'} </p>
-      <p>Loaded favorite songs: {musicStore.favoriteTracks.length}</p>
-      <p>Loaded Artists: {musicStore.artists.length}</p>
-      <p>Loaded Genres: {genres.length} </p>
-      {loading && <p>Loading...</p>}
-      <button onClick={loadAll} disabled={loading}>
-        Load Data
-      </button>
-      <button onClick={generateClusters} disabled={genres.length === 0 || loading}>
-        Generate Clusters
-      </button>
 
-      <p>Genres:</p>
-      <ul>
-        {genres.map((genre) => (
-          <li key={genre}>{genre}</li>
-        ))}
-      </ul>
+      <Grid container spacing={2}>
+        <Grid item xs={4}>
+          <Typography variant="h6">Loaded Favorite Songs:</Typography>
+        </Grid>
+        <Grid item xs={4}>
+          <Typography variant="h6">Loaded Favorite Songs:</Typography>
+        </Grid>
+        <Grid item xs={4}>
+          <Typography variant="h6">Loaded Favorite Songs:</Typography>
+        </Grid>
+        <Grid item xs={4}>
+          {musicStore.favoriteTracks.length}
+        </Grid>
+        <Grid item xs={4}>
+          {musicStore.artists.length}
+        </Grid>
+        <Grid item xs={4}>
+          {genres.length}
+        </Grid>
+      </Grid>
+
+      {loading && <LinearProgress color="success" />}
+      <Button onClick={loadAll} disabled={loading}>
+        Load Data
+      </Button>
+
+      <Grid container spacing={2}>
+        <Grid item xs={4}>
+          <p>Number of clusters: {n_clusters}</p>
+        </Grid>
+        <Grid item xs={8}>
+          <Slider
+            min={2}
+            max={15}
+            aria-label="cluser-slider"
+            value={n_clusters}
+            onChange={(e: Event, newValue: number | number[]) => setNClusters(newValue as number)}
+          />
+        </Grid>
+      </Grid>
+      <Button onClick={generateClusters} disabled={genres.length === 0 || loading}>
+        Generate Clusters
+      </Button>
+
+      {genres && genres.length > 0 && (
+        <>
+          <Accordion>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
+              Your Genres:
+            </AccordionSummary>
+            <AccordionDetails>
+              <List>
+                {genres.map((genre) => (
+                  <ListItem key={genre}>
+                    <ListItemText>{genre}</ListItemText>
+                  </ListItem>
+                ))}
+              </List>
+            </AccordionDetails>
+          </Accordion>
+          <p>Genres:</p>
+
+          <ul>
+            {genres.map((genre) => (
+              <li key={genre}>{genre}</li>
+            ))}
+          </ul>
+        </>
+      )}
     </div>
   )
 }

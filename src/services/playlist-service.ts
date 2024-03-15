@@ -1,11 +1,7 @@
-import { splitIntoBatches } from "../util/util";
-import SpotifyApiService from "./spotify-api-service";
-
-
+import { splitIntoBatches } from '../util/util'
+import SpotifyApiService from './spotify-api-service'
 
 export class PlaylistService {
-
-
   private constructor() {}
 
   public static async createNewPlaylist(userId: string, name: string, tracks: { uri: string }[], access_token: string) {
@@ -13,13 +9,7 @@ export class PlaylistService {
     await SpotifyApiService.addTracksToPlaylist(playlist.id, tracks, access_token)
   }
 
-  public static async overridePlaylist(
-    id: string,
-    snapshotId: string,
-    oldTracks: { uri: string }[],
-    newTracks: { uri: string }[],
-    access_token: string
-  ) {
+  public static async overridePlaylist(id: string, snapshotId: string, oldTracks: { uri: string }[], newTracks: { uri: string }[], access_token: string) {
     console.log('deleting old tracks')
     const deleteBatches = splitIntoBatches(oldTracks, 100)
     for (const batch of deleteBatches) {
@@ -39,5 +29,4 @@ export class PlaylistService {
     console.log('tracks', tracks)
     return tracks
   }
-
 }

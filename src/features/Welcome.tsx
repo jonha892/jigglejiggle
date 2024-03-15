@@ -1,3 +1,6 @@
+import DoneIcon from '@mui/icons-material/Done'
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
+import { Button } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 import useSpotifyAuthStore from '../stores/authStore'
 import { base64encode, generateRandomString, sha256 } from '../types/SpotifyAuth'
@@ -33,10 +36,10 @@ export const Welcome: React.FC = () => {
   return (
     <div>
       <h1>Welcome</h1>
-      <p>Spotify-connected: {authStore.isLoggedIn() ? 'connected' : 'not connected'} </p>
+      <p>Spotify-connected: {authStore.isLoggedIn() ? <DoneIcon /> : <ErrorOutlineIcon />} </p>
       {<p>Click the button below to connect with Spotify</p>}
-      {<button onClick={connectWithSpotify}>Connect</button>}
-      {authStore.isLoggedIn() && <button onClick={() => navigate('home')}>Home</button>}
+      {<Button onClick={connectWithSpotify}>Connect</Button>}
+      {authStore.isLoggedIn() && <Button onClick={() => navigate('home')}>Home</Button>}
     </div>
   )
 }
