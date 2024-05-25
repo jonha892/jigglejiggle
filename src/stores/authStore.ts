@@ -33,12 +33,6 @@ const useSpotifyAuthStore = create<AuthState & AuthActions>((set, get) => ({
   isLoggedIn: () => {
     return get().authDetails !== null && get().authDetails!.accessToken !== undefined
   },
-  //init: async (authCode: string) => {
-  //    const newDetails = await SpotifyApiService.initAuth(authCode, Spotify.redirectUri + '/auth-callback', Spotify.clientId, Spotify.clientSecret);
-  //    const user = await SpotifyApiService.getUserDetails(newDetails.accessToken);
-  //    console.log("user details", user);
-  //    set({ authDetails: newDetails, userId: user.id });
-  //}
 }))
 
 export default useSpotifyAuthStore

@@ -1,6 +1,7 @@
+const redirectUri = import.meta.env.VITE_SPOTIFY_REDIRECT_URI
+
 const Spotify = {
   clientId: 'b8375cf2d4374fe1bc46bb48c054da1a',
-  clientSecret: '3807f249a21241f78209b02414f268c1',
 
   scopes: [
     'user-read-private',
@@ -12,7 +13,7 @@ const Spotify = {
     'playlist-modify-private',
   ].join(', '),
 
-  redirectUri: 'http://localhost:5173', // vue dev server
+  redirectUri: redirectUri, // vue dev server
 } as const
 
 export { Spotify }

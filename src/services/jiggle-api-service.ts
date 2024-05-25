@@ -19,19 +19,6 @@ export default class JiggleApiService {
   private constructor() {}
 
   public static async initAuth(code: string, redirectUri: string): Promise<AuthDetails> {
-    /*
-    const url = 'https://accounts.spotify.com/api/token'
-    const headers = {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: `Basic ${Buffer.from(clientId + ':' + clientSecret).toString('base64')}`,
-    }
-    const body = new URLSearchParams({
-        grant_type: 'authorization_code',
-        code: code,
-        redirect_uri: redirectUri,
-    })
-    const nowTimestamp = Math.floor(Date.now() / 1000)
-    */
     console.log('fetching token with code', code, 'redirectUri', redirectUri)
 
     const url = `${this.baseUrl}/api/token`
@@ -56,20 +43,6 @@ export default class JiggleApiService {
   }
 
   public static async refreshAuthToken(refreshToken: string): Promise<AuthDetails> {
-    /*
-    const url = 'https://accounts.spotify.com/api/token'
-    const headers = {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: `Basic ${Buffer.from(clientId + ':' + clientSecret).toString('base64')}`,
-    }
-    const body = new URLSearchParams({
-        grant_type: 'refresh_token',
-        refresh_token: refreshToken,
-    })
-
-    const nowTimestamp = Math.floor(Date.now() / 1000)
-    */
-
     const url = `${this.baseUrl}/api/token/${refreshToken}`
     const headers = this.defaultHeaders
     const response = await fetch(url, {
