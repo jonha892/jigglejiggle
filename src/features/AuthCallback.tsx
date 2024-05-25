@@ -11,9 +11,9 @@ export const AuthCallback: React.FC = () => {
   useEffect(() => {
     const performInit = async (authCode: string) => {
       const codeVerifier = window.localStorage.getItem('session_codeVerifier')
-      console.log('codeVerifier', codeVerifier)
+      console.log('auth callback codeVerifier', codeVerifier)
       const authDetails = await SpotifyApiService.initAuth(authCode, Spotify.redirectUri + '/auth-callback', Spotify.clientId, codeVerifier!)
-      console.log('authDetails', authDetails)
+      console.log('auth callback authDetails', authDetails)
       const user = await SpotifyApiService.getUserDetails(authDetails.accessToken)
       authStore.initSession(authDetails, user.id)
       navigate('/home')

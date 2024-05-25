@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { AuthDetails } from '../types/SpotifyAuth'
+import { AuthDetails } from '../util/SpotifyAuth'
 
 type Cluster = string[]
 export type ClusterMapping = { [key: string]: Cluster }

@@ -1,3 +1,4 @@
+import { Button, Card, Col, Input, List, Row } from 'antd'
 import { FC, useState } from 'react'
 import usePlaylistStore, { PlaylistTrackInfo } from '../../stores/playlistStore'
 
@@ -17,17 +18,23 @@ export const PlaylistHandle: FC<PlaylistHandleProps> = ({ name, content }) => {
     }
   }
 
+  console.log('content', content)
+
   return (
-    <>
-      <h5>{name}</h5>
-      <input value={newPlaylistName} onChange={(e) => setNewPlaylistName(e.target.value)} />
-      <ul>
+    <Card title={name}>
+      <List size="small" style={{ height: '230px', overflow: 'auto' }}>
         {content.slice(0, Math.min(5, content.length)).map((track) => (
-          <li key={track.id}>{track.name}</li>
+          <List.Item key={track.id}>{track.name}</List.Item>
         ))}
-      </ul>
-      <button onClick={tryRename}>rename</button>
-      <div></div>
-    </>
+      </List>
+      <Row>
+        <Col span={18}>
+          <Input value={newPlaylistName} onChange={(e) => setNewPlaylistName(e.target.value)} />
+        </Col>
+        <Col span={6}>
+          <Button onClick={tryRename}>rename</Button>
+        </Col>
+      </Row>
+    </Card>
   )
 }

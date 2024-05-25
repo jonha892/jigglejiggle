@@ -1,5 +1,4 @@
 import { Schema } from 'zod'
-import { AuthDetails } from '../types/SpotifyAuth'
 import { GetCurrentUserProfileResponse, GetCurrentUserProfileResponseSchema } from '../types/schemas/GetCurrentUserProfileResponse'
 import { GetSeveralAlbumsSchema } from '../types/schemas/GetSeveralAlbums'
 import GetSeveralArtistsSchema from '../types/schemas/GetSeveralArtists'
@@ -8,6 +7,7 @@ import { Album, AlbumSchema, Artist, ArtistSchema, Track } from '../types/schema
 import { PlaylistTrackObject, UserPlaylistItemsResponseSchema } from '../types/schemas/UserPlaylistItemsResponse'
 import { SimplifiedPlaylist, UserPlaylistsResponseSchema } from '../types/schemas/UserPlaylistsResponse'
 import UserSavedTracksResponseSchema, { SavedTrackObject, UserSavedTracksResponse } from '../types/schemas/UserSavedTracksResponse'
+import { AuthDetails } from '../util/SpotifyAuth'
 import { splitIntoBatches } from '../util/util'
 
 export default class SpotifyApiService {

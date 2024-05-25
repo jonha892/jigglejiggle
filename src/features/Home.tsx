@@ -1,5 +1,4 @@
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import { Accordion, AccordionDetails, AccordionSummary, Button, Grid, LinearProgress, List, ListItem, ListItemText, Slider, Typography } from '@mui/material'
+import { Button, Col, Collapse, Flex, List, Row, Slider, Spin, Statistic, Typography } from 'antd'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import JiggleApiService, { ClusterMapping } from '../services/jiggle-api-service'
@@ -10,6 +9,11 @@ import usePlaylistStore, { PlaylistTrackInfo, Playlists } from '../stores/playli
 import { Artist } from '../types/schemas/Track'
 import { SavedTrackObject } from '../types/schemas/UserSavedTracksResponse'
 import { Spotify } from '../util/constants'
+
+import { LoadingOutlined } from '@ant-design/icons'
+import CountUp from 'react-countup'
+
+const statisticFormatter = (value: number | string) => <CountUp end={value as number} separator="," />
 
 function buildPlaylists(
   tracks: SavedTrackObject[],
@@ -70,16 +74,28 @@ function buildPlaylists(
   }
 }
 
+function getGenres(artists: Artist[]): string[] {
+  const genres = new Set<string>()
+  artists.forEach((artist) => {
+    artist.genres?.forEach((genre) => {
+      genres.add(genre)
+    })
+  })
+  return Array.from(genres)
+}
+
 export const Home: React.FC = () => {
   const authStore = useSpotifyAuthStore()
-  const musicStore = useMusicStore()
   const setPlaylists = usePlaylistStore((state) => state.setPlaylists)
 
   const navigate = useNavigate()
 
   const [loading, setLoading] = useState(false)
   const [n_clusters, setNClusters] = useState(5)
-  const [genres, setGenres] = useState<string[]>([])
+
+  const musicStore = useMusicStore()
+  const localstorageCacheDate = musicStore.localstorageCacheDate
+  const [genres, setGenres] = useState<string[]>(getGenres(musicStore.artists))
 
   const loadFavoriteSongs = async () => {
     const authDetails = authStore.authDetails
@@ -88,7 +104,6 @@ export const Home: React.FC = () => {
     authStore.updateAuth(newDetails)
     const loadedSavedTracks = await SpotifyApiService.getAllUserSavedTracks(newDetails.accessToken)
     musicStore.updateTracks(loadedSavedTracks)
-    window.localStorage.setItem('savedTracks', JSON.stringify(loadedSavedTracks))
 
     return loadedSavedTracks
   }
@@ -100,7 +115,6 @@ export const Home: React.FC = () => {
     authStore.updateAuth(newDetails)
     const loadedArtists = await SpotifyApiService.getArtists(artistIds, newDetails.accessToken)
     musicStore.updateArtists(loadedArtists)
-    window.localStorage.setItem('artists', JSON.stringify(loadedArtists))
 
     return loadedArtists
   }
@@ -119,12 +133,8 @@ export const Home: React.FC = () => {
     })
 
     const artists = await loadArtists([...artistIds])
-    const genres = new Set<string>()
-    artists.forEach((artist) => {
-      artist.genres?.forEach((genre) => {
-        genres.add(genre)
-      })
-    })
+
+    const genres = getGenres(artists)
     setGenres(Array.from(genres))
     setLoading(false)
   }
@@ -152,74 +162,55 @@ export const Home: React.FC = () => {
   return (
     <div>
       <h1>Home</h1>
+      <Flex justify="space-around">
+        <Statistic title="Data from" loading={loading} value={localstorageCacheDate ? new Date(localstorageCacheDate!).toLocaleString() : '-'} />
+        <Statistic title="# Songs" loading={loading} value={musicStore.favoriteTracks.length} formatter={statisticFormatter} />
+        <Statistic title="# Artists" loading={loading} value={musicStore.artists.length} formatter={statisticFormatter} />
+        <Statistic title="# Genres" loading={loading} value={genres.length} formatter={statisticFormatter} />
+      </Flex>
+      <Row>
+        <Col span={8}></Col>
+        <Col span={5}></Col>
+        <Col span={8}></Col>
+      </Row>
 
-      <Grid container spacing={2}>
-        <Grid item xs={4}>
-          <Typography variant="h6">Loaded Favorite Songs:</Typography>
-        </Grid>
-        <Grid item xs={4}>
-          <Typography variant="h6">Loaded Favorite Songs:</Typography>
-        </Grid>
-        <Grid item xs={4}>
-          <Typography variant="h6">Loaded Favorite Songs:</Typography>
-        </Grid>
-        <Grid item xs={4}>
-          {musicStore.favoriteTracks.length}
-        </Grid>
-        <Grid item xs={4}>
-          {musicStore.artists.length}
-        </Grid>
-        <Grid item xs={4}>
-          {genres.length}
-        </Grid>
-      </Grid>
-
-      {loading && <LinearProgress color="success" />}
+      {loading && <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />}
       <Button onClick={loadAll} disabled={loading}>
         Load Data
       </Button>
 
-      <Grid container spacing={2}>
-        <Grid item xs={4}>
-          <p>Number of clusters: {n_clusters}</p>
-        </Grid>
-        <Grid item xs={8}>
-          <Slider
-            min={2}
-            max={15}
-            aria-label="cluser-slider"
-            value={n_clusters}
-            onChange={(e: Event, newValue: number | number[]) => setNClusters(newValue as number)}
-          />
-        </Grid>
-      </Grid>
+      <Row>
+        <Col span={8}>
+          <p># Clusters: {n_clusters}</p>
+        </Col>
+        <Col span={16}>
+          <Slider min={2} max={15} aria-label="cluser-slider" value={n_clusters} onChange={(newValue: number) => setNClusters(newValue)} />
+        </Col>
+      </Row>
       <Button onClick={generateClusters} disabled={genres.length === 0 || loading}>
         Generate Clusters
       </Button>
 
       {genres && genres.length > 0 && (
         <>
-          <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
-              Your Genres:
-            </AccordionSummary>
-            <AccordionDetails>
-              <List>
-                {genres.map((genre) => (
-                  <ListItem key={genre}>
-                    <ListItemText>{genre}</ListItemText>
-                  </ListItem>
-                ))}
-              </List>
-            </AccordionDetails>
-          </Accordion>
-          <p>Genres:</p>
-
-          <ul>
-            {genres.map((genre) => (
-              <li key={genre}>{genre}</li>
-            ))}
-          </ul>
+          <Collapse
+            items={[
+              {
+                key: '1',
+                label: 'Your Genres',
+                children: (
+                  <List
+                    dataSource={genres}
+                    renderItem={(item) => (
+                      <List.Item>
+                        <Typography.Text>{item}</Typography.Text>
+                      </List.Item>
+                    )}
+                  ></List>
+                ),
+              },
+            ]}
+          ></Collapse>
         </>
       )}
     </div>

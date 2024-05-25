@@ -5,17 +5,12 @@ import { AuthCallback } from './features/AuthCallback'
 import { ExportPlaylists } from './features/ExportPlaylists'
 import { Home } from './features/Home'
 import PrivateRoute from './features/PrivateRoute'
-import { Test } from './features/Test'
 import { Welcome } from './features/Welcome'
 
 const router = createBrowserRouter([
   {
     path: '/',
     element: <Welcome />,
-  },
-  {
-    path: '/test',
-    element: <Test />,
   },
   {
     path: '/auth-callback',

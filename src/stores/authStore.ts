@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { LocalStorageService } from '../services/localstorage-service'
-import { AuthDetails } from '../types/SpotifyAuth'
+import { AuthDetails } from '../util/SpotifyAuth'
 
 type AuthState = {
   authDetails: AuthDetails | null

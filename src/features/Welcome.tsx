@@ -1,9 +1,8 @@
-import DoneIcon from '@mui/icons-material/Done'
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
-import { Button } from '@mui/material'
+import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons'
+import { Button } from 'antd'
 import { useNavigate } from 'react-router-dom'
 import useSpotifyAuthStore from '../stores/authStore'
-import { base64encode, generateRandomString, sha256 } from '../types/SpotifyAuth'
+import { base64encode, generateRandomString, sha256 } from '../util/SpotifyAuth'
 import { Spotify } from '../util/constants'
 
 export const Welcome: React.FC = () => {
@@ -14,6 +13,7 @@ export const Welcome: React.FC = () => {
 
     const codeVerifier = generateRandomString(64)
     window.localStorage.setItem('session_codeVerifier', codeVerifier)
+    console.log('codeVerifier', codeVerifier)
     const hashed = await sha256(codeVerifier)
     const codeChallenge = base64encode(hashed)
 
@@ -36,7 +36,7 @@ export const Welcome: React.FC = () => {
   return (
     <div>
       <h1>Welcome</h1>
-      <p>Spotify-connected: {authStore.isLoggedIn() ? <DoneIcon /> : <ErrorOutlineIcon />} </p>
+      <p>Spotify-connected: {authStore.isLoggedIn() ? <CheckCircleOutlined /> : <CloseCircleOutlined />} </p>
       {<p>Click the button below to connect with Spotify</p>}
       {<Button onClick={connectWithSpotify}>Connect</Button>}
       {authStore.isLoggedIn() && <Button onClick={() => navigate('home')}>Home</Button>}
