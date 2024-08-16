@@ -5,7 +5,9 @@ from numpy import array
 from sklearn.cluster import KMeans
 
 
-def generate_clusters(vectors: List[array], n_clusters, random_state=0) -> KMeans:
+def generate_kmeans_clusters(
+    vectors: List[array], n_clusters: int, random_state: int = 0
+) -> KMeans:
     kmeans = KMeans(n_clusters, random_state=random_state)
     kmeans.fit(vectors)
 

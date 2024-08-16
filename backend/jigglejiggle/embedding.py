@@ -3,8 +3,8 @@ import logging
 from pathlib import Path
 from typing import Dict, List
 
-import tqdm
 from openai import OpenAI
+from tqdm import tqdm
 
 
 class EmbeddingService:
@@ -33,15 +33,14 @@ class EmbeddingService:
     def embedd_genres(
         self,
         genres: List[str],
-        existing_embeddings: Dict[str, List[float]],
         model="text-embedding-3-small",
     ):
         total_tokens = 0
         embeddings = {}
         self.logger.info(f"Embedding {len(genres)} genres")
-        for _, genre in tqdm.tqdm(enumerate(genres)):
-            if genre in existing_embeddings:
-                embeddings[genre] = existing_embeddings[genre]
+        for _, genre in enumerate(tqdm(genres)):
+            if genre in self.existing_embeddings:
+                embeddings[genre] = self.existing_embeddings[genre]
                 continue
             response = self.openai_client.embeddings.create(input=genre, model=model)
             embeddings[genre] = response.data[0].embedding

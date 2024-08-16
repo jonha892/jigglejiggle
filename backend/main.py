@@ -5,7 +5,7 @@ import numpy as np
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from jigglejiggle.clustering import generate_genre_clusters
+from jigglejiggle.clustering import generate_genre_clusters, generate_kmeans_clusters
 from jigglejiggle.embedding import EmbeddingService
 from jigglejiggle.util import get_env
 from openai import OpenAI
@@ -57,7 +57,7 @@ def generate_clusters(request: ClusterRequest):
     embedding_service.update_existing_embeddings(embeddings)
 
     embedding_vectors = np.array(list(embeddings.values()))
-    kmeans = generate_clusters(embedding_vectors, request.n_clusters)
+    kmeans = generate_kmeans_clusters(embedding_vectors, request.n_clusters)
     genre_clusters = generate_genre_clusters(embeddings, kmeans)
 
     return {"clusters": genre_clusters, "total_tokens": total_tokens}
