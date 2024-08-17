@@ -5,6 +5,7 @@ import numpy as np
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from jigglejiggle.clustering import generate_genre_clusters, generate_kmeans_clusters
 from jigglejiggle.embedding import EmbeddingService
 from jigglejiggle.util import get_env
@@ -23,6 +24,18 @@ load_dotenv()
 
 
 app = FastAPI()
+
+
+class SPAStaticFiles(StaticFiles):
+    async def get_response(self, path: str, scope):
+        response = await super().get_response(path, scope)
+        if response.status_code == 404:
+            response = await super().get_response(".", scope)
+        return response
+
+
+app.mount("/", SPAStaticFiles(directory="public", html=True), name="whatever")
+
 origins = ["*"]
 
 app.add_middleware(

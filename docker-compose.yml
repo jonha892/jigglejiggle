@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  my_service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jigglejiggle
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/data:/app/data
