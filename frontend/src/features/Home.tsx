@@ -184,7 +184,7 @@ export const Home: React.FC = () => {
           <p># Clusters: {n_clusters}</p>
         </Col>
         <Col span={16}>
-          <Slider min={2} max={15} aria-label="cluser-slider" value={n_clusters} onChange={(newValue: number) => setNClusters(newValue)} />
+          <Slider min={2} max={15} aria-label="cluser-slider" value={n_clusters} onChange={(newValue: number) => setNClusters(newValue)} disabled={loading} />
         </Col>
       </Row>
       <Button onClick={generateClusters} disabled={genres.length === 0 || loading}>

@@ -7,6 +7,8 @@ import { Home } from './features/Home'
 import PrivateRoute from './features/PrivateRoute'
 import { Welcome } from './features/Welcome'
 
+import './app.css'
+
 const router = createBrowserRouter([
   {
     path: '/',

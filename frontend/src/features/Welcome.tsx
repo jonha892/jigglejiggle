@@ -1,9 +1,12 @@
-import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons'
-import { Button } from 'antd'
+import { CustomerServiceOutlined, HomeOutlined } from '@ant-design/icons'
+import { Button, Layout, Space, Typography } from 'antd'
 import { useNavigate } from 'react-router-dom'
 import useSpotifyAuthStore from '../stores/authStore'
 import { base64encode, generateRandomString, sha256 } from '../util/SpotifyAuth'
 import { Spotify } from '../util/constants'
+
+const { Title, Paragraph } = Typography
+const { Content } = Layout
 
 export const Welcome: React.FC = () => {
   const authStore = useSpotifyAuthStore()
@@ -33,13 +36,25 @@ export const Welcome: React.FC = () => {
 
   const navigate = useNavigate()
 
+  const isLoggedIn = authStore.isLoggedIn()
+
   return (
-    <div>
-      <h1>Welcome</h1>
-      <p>Spotify-connected: {authStore.isLoggedIn() ? <CheckCircleOutlined /> : <CloseCircleOutlined />} </p>
-      {<p>Click the button below to connect with Spotify</p>}
-      {<Button onClick={connectWithSpotify}>Connect</Button>}
-      {authStore.isLoggedIn() && <Button onClick={() => navigate('home')}>Home</Button>}
-    </div>
+    <Layout style={{ minHeight: '100vh' }}>
+      <Content style={{ padding: '50px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+        <Space direction="vertical" size="large" style={{ display: 'flex', alignItems: 'center' }}>
+          <Title level={1} style={{ marginBottom: 0 }}>
+            jigglejiggle
+          </Title>
+          <Paragraph style={{ fontSize: '18px', textAlign: 'center' }}>Automatically generate Spotify playlists that make you want to jigglejiggle!</Paragraph>
+          {isLoggedIn ? (
+            <Button type="primary" size="large" icon={<HomeOutlined />} onClick={() => navigate('home')}>
+              Go to Home Page
+            </Button>
+          ) : (
+            <Button type="primary" size="large" icon={<CustomerServiceOutlined />} onClick={connectWithSpotify} />
+          )}
+        </Space>
+      </Content>
+    </Layout>
   )
 }
