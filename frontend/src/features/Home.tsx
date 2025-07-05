@@ -1,4 +1,4 @@
-import { Button, Col, Collapse, Flex, List, Row, Slider, Spin, Statistic, Typography } from 'antd'
+import { Button, Col, Collapse, Flex, List, Modal, Row, Slider, Spin, Statistic, Typography } from 'antd'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import JiggleApiService, { ClusterMapping } from '../services/jiggle-api-service'
@@ -21,7 +21,7 @@ function buildPlaylists(
   mapping: ClusterMapping
 ): { playlists: Playlists; tracksWithoutPlaylist: SavedTrackObject[] } {
   const reversedClusterMapping = new Map<string, string>()
-  for (const [clusterName, genres] of Object.entries(mapping)) {
+  for (const [clusterName, genres] of Object.entries(mapping.clusters)) {
     for (const genre of genres) {
       reversedClusterMapping.set(genre, clusterName)
     }
@@ -91,6 +91,8 @@ export const Home: React.FC = () => {
   const navigate = useNavigate()
 
   const [loading, setLoading] = useState(false)
+  const [errorOpen, setErrorOpen] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
   const [n_clusters, setNClusters] = useState(5)
 
   const musicStore = useMusicStore()
@@ -144,6 +146,13 @@ export const Home: React.FC = () => {
     console.log('loading clusters for', genres.length, 'genres')
     try {
       const r = await JiggleApiService.getClusters(genres, n_clusters)
+      if ('detail' in r) {
+        setLoading(false)
+        setErrorMessage(r.detail)
+        setErrorOpen(true)
+        return
+      }
+
       console.log('clusters', r)
 
       console.log('building playlists')
@@ -161,6 +170,18 @@ export const Home: React.FC = () => {
 
   return (
     <div>
+      <Modal
+        title="Error"
+        open={errorOpen}
+        onOk={() => {
+          setErrorOpen(false)
+        }}
+        onCancel={() => {
+          setErrorOpen(false)
+        }}
+      >
+        <p>Some error occurred: {errorMessage}</p>
+      </Modal>
       <h1>Home</h1>
       <Flex justify="space-around">
         <Statistic title="Data from" loading={loading} value={localstorageCacheDate ? new Date(localstorageCacheDate!).toLocaleString() : '-'} />

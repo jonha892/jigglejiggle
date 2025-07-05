@@ -1,5 +1,7 @@
+import '@ant-design/v5-patch-for-react-19'
 import ReactDOM from 'react-dom/client'
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'
+
 import { App } from './App'
 import { AuthCallback } from './features/AuthCallback'
 import { ExportPlaylists } from './features/ExportPlaylists'

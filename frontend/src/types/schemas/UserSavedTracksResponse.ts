@@ -2,13 +2,12 @@ import { z } from 'zod'
 import { TrackSchema } from './Track'
 
 const SavedTrackObjectSchema = z.object({
-    added_at: z.string(),
-    track: TrackSchema,
+  track: TrackSchema,
 })
 
 const UserSavedTracksResponseSchema = z.object({
-    items: z.array(SavedTrackObjectSchema),
-    next: z.string().nullable(),
+  items: z.array(SavedTrackObjectSchema),
+  next: z.string().nullable(),
 })
 
 export default UserSavedTracksResponseSchema
